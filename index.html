@@ -1,0 +1,132 @@
+‎<!DOCTYPE html>
+‎<html lang="fr">
+‎<head>
+‎  <meta charset="utf-8" />
+‎  <title>Mon Scan - Upload</title>
+‎  <meta name="viewport" content="width=device-width,initial-scale=1" />
+‎  <style>
+‎    body { font-family: Arial, sans-serif; padding: 18px; max-width: 900px; margin: auto; }
+‎    input, button { padding: 8px; margin: 6px 0; }
+‎    .scan { border:1px solid #eee; padding: 10px; margin-bottom: 12px; }
+‎    img { max-width: 100%; display:block; margin-top:8px; }
+‎  </style>
+‎</head>
+‎<body>
+‎  <h1>Mon Scan — Upload & Liste</h1>
+‎
+‎  <div>
+‎    <label>Titre</label><br/>
+‎    <input id="title" placeholder="Titre du scan" />
+‎  </div>
+‎
+‎  <div>
+‎    <label>Fichier (image ou pdf)</label><br/>
+‎    <input id="file" type="file" accept="image/*,application/pdf" />
+‎  </div>
+‎
+‎  <div>
+‎    <button id="uploadBtn">Uploader</button>
+‎  </div>
+‎
+‎  <hr/>
+‎
+‎  <h2>Derniers scans</h2>
+‎  <div id="list"></div>
+‎
+‎  <!-- Supabase JS via CDN -->
+‎  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+‎  <script>
+‎    // --------- REMPLACE ces valeurs par les tiennes (depuis Supabase) ----------
+‎    const SUPABASE_URL = "https://TON_PROJET.supabase.co";    // <-- remplace
+‎    const SUPABASE_ANON_KEY = "eyJ...ton_anon_key...";       // <-- remplace
+‎    const BUCKET = "scans"; // nom du bucket que tu as créé
+‎    // -------------------------------------------------------------------------
+‎
+‎    const supabase = supabaseJs.createClient(https://wagjvmsfxmhwjoemrpgq.supabase.co, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2p2bXNmeG1od2pvZW1ycGdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NDY0MjgsImV4cCI6MjA3NDMyMjQyOH0.hI9NC3-1_YF53Y1OpZT8X2JEgyhfH9_A9cNSs0C_s1A);
+‎
+‎    const uploadBtn = document.getElementById('uploadBtn');
+‎    const fileInput = document.getElementById('file');
+‎    const titleInput = document.getElementById('title');
+‎    const listDiv = document.getElementById('list');
+‎
+‎    uploadBtn.onclick = async () => {
+‎      const file = fileInput.files[0];
+‎      const title = titleInput.value || "Sans titre";
+‎      if (!file) return alert('Choisis un fichier.');
+‎
+‎      uploadBtn.disabled = true;
+‎      uploadBtn.textContent = 'Upload en cours...';
+‎
+‎      try {
+‎        const timestamp = Date.now();
+‎        const path = `${timestamp}_${file.name}`;
+‎
+‎        // upload dans le bucket
+‎        const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
+‎          cacheControl: '3600',
+‎          upsert: false
+‎        });
+‎        if (upErr) throw upErr;
+‎
+‎        // insérer métadonnées dans la table 'scans'
+‎        const { error: insertErr } = await supabase.from('scans').insert([{
+‎          title: title,
+‎          file_path: path,
+‎          filename: file.name,
+‎          visibility: 'public'
+‎        }]);
+‎        if (insertErr) throw insertErr;
+‎
+‎        alert('Upload réussi !');
+‎        fileInput.value = '';
+‎        titleInput.value = '';
+‎        loadList();
+‎      } catch (err) {
+‎        console.error(err);
+‎        alert('Erreur: ' + (err.message || JSON.stringify(err)));
+‎      } finally {
+‎        uploadBtn.disabled = false;
+‎        uploadBtn.textContent = 'Uploader';
+‎      }
+‎    };
+‎
+‎    async function loadList() {
+‎      listDiv.innerHTML = 'Chargement...';
+‎      try {
+‎        const { data, error } = await supabase.from('scans').select('*').order('created_at', {ascending:false}).limit(50);
+‎        if (error) throw error;
+‎        if (!data || data.length === 0) {
+‎          listDiv.innerHTML = '<i>Aucun scan pour le moment.</i>';
+‎          return;
+‎        }
+‎        listDiv.innerHTML = '';
+‎        for (const item of data) {
+‎          // obtenir URL publique (bucket public)
+‎          const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(item.file_path);
+‎          const url = urlData ? urlData.publicUrl : null;
+‎
+‎          const div = document.createElement('div');
+‎          div.className = 'scan';
+‎          div.innerHTML = `<strong>${escapeHtml(item.title)}</strong><div style="font-size:13px;color:#666">${item.filename || ''} · ${new Date(item.created_at).toLocaleString()}</div>`;
+‎          if (url) {
+‎            if ((item.filename || '').toLowerCase().endsWith('.pdf')) {
+‎              div.innerHTML += `<div style="margin-top:8px"><a target="_blank" href="${url}">Ouvrir le PDF</a></div>`;
+‎            } else {
+‎              div.innerHTML += `<img src="${url}" alt="${escapeHtml(item.title)}">`;
+‎            }
+‎          }
+‎          listDiv.appendChild(div);
+‎        }
+‎      } catch (err) {
+‎        console.error(err);
+‎        listDiv.innerHTML = '<i>Erreur lors du chargement</i>';
+‎      }
+‎    }
+‎
+‎    function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+‎
+‎    // charger la liste au démarrage
+‎    loadList();
+‎  </script>
+‎</body>
+‎</html>
