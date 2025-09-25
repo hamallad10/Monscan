@@ -1,0 +1,14 @@
+body { font-family: 'Roboto', sans-serif; max-width: 900px; margin: 0 auto; padding: 0 10px; background: #f7f7f7; }
+header { text-align: center; background: #0077ff; color: #fff; padding: 15px; border-radius: 5px; }
+header nav ul { list-style:none; padding:0; display:flex; justify-content:center; gap:15px; flex-wrap:wrap; }
+header nav ul li a { color:#fff; text-decoration:none; font-weight:700; cursor:pointer; }
+h1,h2 { color:#333; }
+input, button { padding:10px; margin:5px 0; font-size:16px; }
+button { background:#0077ff; color:#fff; border:none; border-radius:5px; cursor:pointer; transition:0.3s; }
+button:disabled { background:#999; cursor:not-allowed; }
+button:hover:not(:disabled) { background:#005fcc; }
+#filePreview img { max-width:150px; margin-top:10px; border-radius:5px; border:1px solid #ccc; }
+.scan { margin-bottom:15px; padding:10px; background:#fff; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+.scan a { color:#0077ff; text-decoration:none; margin-right:10px; }
+.toast { position: fixed; top:20px; right:20px; background:#333; color:#fff; padding:10px 15px; border-radius:5px; opacity:0; transition:0.5s; z-index:100; }
+.toast.show { opacity:1; }
