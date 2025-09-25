@@ -1,132 +1,604 @@
-‎<!DOCTYPE html>
-‎<html lang="fr">
-‎<head>
-‎  <meta charset="utf-8" />
-‎  <title>Mon Scan - Upload</title>
-‎  <meta name="viewport" content="width=device-width,initial-scale=1" />
-‎  <style>
-‎    body { font-family: Arial, sans-serif; padding: 18px; max-width: 900px; margin: auto; }
-‎    input, button { padding: 8px; margin: 6px 0; }
-‎    .scan { border:1px solid #eee; padding: 10px; margin-bottom: 12px; }
-‎    img { max-width: 100%; display:block; margin-top:8px; }
-‎  </style>
-‎</head>
-‎<body>
-‎  <h1>Mon Scan — Upload & Liste</h1>
-‎
-‎  <div>
-‎    <label>Titre</label><br/>
-‎    <input id="title" placeholder="Titre du scan" />
-‎  </div>
-‎
-‎  <div>
-‎    <label>Fichier (image ou pdf)</label><br/>
-‎    <input id="file" type="file" accept="image/*,application/pdf" />
-‎  </div>
-‎
-‎  <div>
-‎    <button id="uploadBtn">Uploader</button>
-‎  </div>
-‎
-‎  <hr/>
-‎
-‎  <h2>Derniers scans</h2>
-‎  <div id="list"></div>
-‎
-‎  <!-- Supabase JS via CDN -->
-‎  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-‎  <script>
-‎    // --------- REMPLACE ces valeurs par les tiennes (depuis Supabase) ----------
-‎    const SUPABASE_URL = "https://TON_PROJET.supabase.co";    // <-- remplace
-‎    const SUPABASE_ANON_KEY = "eyJ...ton_anon_key...";       // <-- remplace
-‎    const BUCKET = "scans"; // nom du bucket que tu as créé
-‎    // -------------------------------------------------------------------------
-‎
-‎    const supabase = supabaseJs.createClient(https://wagjvmsfxmhwjoemrpgq.supabase.co, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2p2bXNmeG1od2pvZW1ycGdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NDY0MjgsImV4cCI6MjA3NDMyMjQyOH0.hI9NC3-1_YF53Y1OpZT8X2JEgyhfH9_A9cNSs0C_s1A);
-‎
-‎    const uploadBtn = document.getElementById('uploadBtn');
-‎    const fileInput = document.getElementById('file');
-‎    const titleInput = document.getElementById('title');
-‎    const listDiv = document.getElementById('list');
-‎
-‎    uploadBtn.onclick = async () => {
-‎      const file = fileInput.files[0];
-‎      const title = titleInput.value || "Sans titre";
-‎      if (!file) return alert('Choisis un fichier.');
-‎
-‎      uploadBtn.disabled = true;
-‎      uploadBtn.textContent = 'Upload en cours...';
-‎
-‎      try {
-‎        const timestamp = Date.now();
-‎        const path = `${timestamp}_${file.name}`;
-‎
-‎        // upload dans le bucket
-‎        const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
-‎          cacheControl: '3600',
-‎          upsert: false
-‎        });
-‎        if (upErr) throw upErr;
-‎
-‎        // insérer métadonnées dans la table 'scans'
-‎        const { error: insertErr } = await supabase.from('scans').insert([{
-‎          title: title,
-‎          file_path: path,
-‎          filename: file.name,
-‎          visibility: 'public'
-‎        }]);
-‎        if (insertErr) throw insertErr;
-‎
-‎        alert('Upload réussi !');
-‎        fileInput.value = '';
-‎        titleInput.value = '';
-‎        loadList();
-‎      } catch (err) {
-‎        console.error(err);
-‎        alert('Erreur: ' + (err.message || JSON.stringify(err)));
-‎      } finally {
-‎        uploadBtn.disabled = false;
-‎        uploadBtn.textContent = 'Uploader';
-‎      }
-‎    };
-‎
-‎    async function loadList() {
-‎      listDiv.innerHTML = 'Chargement...';
-‎      try {
-‎        const { data, error } = await supabase.from('scans').select('*').order('created_at', {ascending:false}).limit(50);
-‎        if (error) throw error;
-‎        if (!data || data.length === 0) {
-‎          listDiv.innerHTML = '<i>Aucun scan pour le moment.</i>';
-‎          return;
-‎        }
-‎        listDiv.innerHTML = '';
-‎        for (const item of data) {
-‎          // obtenir URL publique (bucket public)
-‎          const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(item.file_path);
-‎          const url = urlData ? urlData.publicUrl : null;
-‎
-‎          const div = document.createElement('div');
-‎          div.className = 'scan';
-‎          div.innerHTML = `<strong>${escapeHtml(item.title)}</strong><div style="font-size:13px;color:#666">${item.filename || ''} · ${new Date(item.created_at).toLocaleString()}</div>`;
-‎          if (url) {
-‎            if ((item.filename || '').toLowerCase().endsWith('.pdf')) {
-‎              div.innerHTML += `<div style="margin-top:8px"><a target="_blank" href="${url}">Ouvrir le PDF</a></div>`;
-‎            } else {
-‎              div.innerHTML += `<img src="${url}" alt="${escapeHtml(item.title)}">`;
-‎            }
-‎          }
-‎          listDiv.appendChild(div);
-‎        }
-‎      } catch (err) {
-‎        console.error(err);
-‎        listDiv.innerHTML = '<i>Erreur lors du chargement</i>';
-‎      }
-‎    }
-‎
-‎    function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-‎
-‎    // charger la liste au démarrage
-‎    loadList();
-‎  </script>
-‎</body>
-‎</html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Rajin Scan - Mes Scans Privés</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --secondary: #3498db;
+      --accent: #e74c3c;
+      --light: #ecf0f1;
+      --dark: #2c3e50;
+      --gray: #95a5a6;
+      --success: #2ecc71;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .tagline {
+      font-style: italic;
+      opacity: 0.9;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .auth-section, .upload-section, .scans-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+    
+    h2 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--light);
+    }
+    
+    input, button, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    
+    button {
+      background-color: var(--secondary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-weight: bold;
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+    }
+    
+    button:disabled {
+      background-color: var(--gray);
+      cursor: not-allowed;
+    }
+    
+    .btn-danger {
+      background-color: var(--accent);
+    }
+    
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+    
+    .btn-success {
+      background-color: var(--success);
+    }
+    
+    .btn-success:hover {
+      background-color: #27ae60;
+    }
+    
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .file-input-wrapper input[type=file] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    
+    .file-input-button {
+      background-color: var(--light);
+      color: var(--dark);
+      border: 1px dashed var(--gray);
+      text-align: center;
+      padding: 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    .file-name {
+      margin-top: 5px;
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    
+    .scan-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .scan-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .scan-thumbnail {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-right: 1rem;
+      background-color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--gray);
+    }
+    
+    .scan-info {
+      flex: 1;
+    }
+    
+    .scan-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+    
+    .scan-date {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+    
+    .scan-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .scan-actions button {
+      width: auto;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+    
+    .pdf-icon {
+      font-size: 2.5rem;
+      color: #e74c3c;
+    }
+    
+    .auth-status {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: bold;
+    }
+    
+    .auth-status.authenticated {
+      background-color: rgba(46, 204, 113, 0.2);
+      color: var(--success);
+    }
+    
+    .auth-status.not-authenticated {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: var(--accent);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray);
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding: 1rem;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Rajin Scan</h1>
+    <p class="tagline">Votre bibliothèque de scans privés</p>
+  </header>
+  
+  <div class="container">
+    <div class="left-column">
+      <section class="auth-section">
+        <h2>Authentification</h2>
+        <div id="authStatus" class="auth-status not-authenticated">
+          Non connecté
+        </div>
+        <div id="authForm">
+          <input type="email" id="email" placeholder="Votre email">
+          <input type="password" id="password" placeholder="Votre mot de passe">
+          <button id="signInBtn">Se connecter</button>
+          <button id="signUpBtn" class="btn-success">Créer un compte</button>
+        </div>
+        <div id="userInfo" class="hidden">
+          <p>Connecté en tant que: <span id="userEmail"></span></p>
+          <button id="signOutBtn" class="btn-danger">Se déconnecter</button>
+        </div>
+      </section>
+      
+      <section id="uploadSection" class="upload-section hidden">
+        <h2>Uploader un scan</h2>
+        <input type="text" id="title" placeholder="Titre du scan">
+        
+        <div class="file-input-wrapper">
+          <div class="file-input-button">
+            <i class="fas fa-cloud-upload-alt"></i> Choisir un fichier
+          </div>
+          <input type="file" id="file" accept="image/*,application/pdf">
+        </div>
+        <div id="fileName" class="file-name">Aucun fichier sélectionné</div>
+        
+        <button id="uploadBtn">Uploader</button>
+      </section>
+    </div>
+    
+    <div class="right-column">
+      <section class="scans-section">
+        <h2>Mes scans</h2>
+        <div id="scansList">
+          <div class="loading">
+            <p>Chargement des scans...</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  
+  <footer>
+    <p>Rajin Scan &copy; 2023 - Votre bibliothèque privée</p>
+  </footer>
+
+  <!-- Font Awesome pour les icônes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  
+  <script>
+    // Configuration Supabase - REMPLACEZ avec vos valeurs
+    const SUPABASE_URL = "https://qbfqbapicbhutqmingvk.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZnFiYXBpY2JodXRxbWluZ3ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NTAyOTYsImV4cCI6MjA3NDMyNjI5Nn0.Je3a2LR76gETeHeIhcUMyk05MpE3PYhaI6YeZG1YDyQ";
+    const BUCKET = "scans";
+    
+    // Initialisation de Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Éléments DOM
+    const authStatus = document.getElementById('authStatus');
+    const authForm = document.getElementById('authForm');
+    const userInfo = document.getElementById('userInfo');
+    const userEmail = document.getElementById('userEmail');
+    const uploadSection = document.getElementById('uploadSection');
+    const scansList = document.getElementById('scansList');
+    
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const signInBtn = document.getElementById('signInBtn');
+    const signUpBtn = document.getElementById('signUpBtn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    
+    const titleInput = document.getElementById('title');
+    const fileInput = document.getElementById('file');
+    const fileName = document.getElementById('fileName');
+    const uploadBtn = document.getElementById('uploadBtn');
+    
+    // État d'authentification
+    let currentUser = null;
+    
+    // Vérifier l'état d'authentification au chargement
+    checkAuthState();
+    
+    // Écouteurs d'événements
+    signInBtn.addEventListener('click', signIn);
+    signUpBtn.addEventListener('click', signUp);
+    signOutBtn.addEventListener('click', signOut);
+    
+    fileInput.addEventListener('change', function() {
+      if (this.files.length > 0) {
+        fileName.textContent = this.files[0].name;
+      } else {
+        fileName.textContent = 'Aucun fichier sélectionné';
+      }
+    });
+    
+    uploadBtn.addEventListener('click', uploadFile);
+    
+    // Fonctions d'authentification
+    async function checkAuthState() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (session && session.user) {
+        currentUser = session.user;
+        updateUIForAuthenticatedUser();
+      } else {
+        currentUser = null;
+        updateUIForUnauthenticatedUser();
+      }
+    }
+    
+    async function signIn() {
+      const email = emailInput.value;
+      const password = passwordInput.value;
+      
+      if (!email || !password) {
+        alert('Veuillez remplir tous les champs');
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+        
+        currentUser = data.user;
+        updateUIForAuthenticatedUser();
+        loadScans();
+        
+      } catch (error) {
+        console.error('Erreur de connexion:', error);
+        alert('Erreur de connexion: ' + error.message);
+      }
+    }
+    
+    async function signUp() {
+      const email = emailInput.value;
+      const password = passwordInput.value;
+      
+      if (!email || !password) {
+        alert('Veuillez remplir tous les champs');
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+        
+        alert('Compte créé! Vérifiez votre email pour confirmer votre inscription.');
+        
+      } catch (error) {
+        console.error('Erreur lors de la création du compte:', error);
+        alert('Erreur lors de la création du compte: ' + error.message);
+      }
+    }
+    
+    async function signOut() {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        
+        currentUser = null;
+        updateUIForUnauthenticatedUser();
+        scansList.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Aucun scan disponible</p></div>';
+        
+      } catch (error) {
+        console.error('Erreur de déconnexion:', error);
+        alert('Erreur de déconnexion: ' + error.message);
+      }
+    }
+    
+    function updateUIForAuthenticatedUser() {
+      authStatus.textContent = 'Connecté';
+      authStatus.className = 'auth-status authenticated';
+      authForm.classList.add('hidden');
+      userInfo.classList.remove('hidden');
+      uploadSection.classList.remove('hidden');
+      userEmail.textContent = currentUser.email;
+      
+      emailInput.value = '';
+      passwordInput.value = '';
+    }
+    
+    function updateUIForUnauthenticatedUser() {
+      authStatus.textContent = 'Non connecté';
+      authStatus.className = 'auth-status not-authenticated';
+      authForm.classList.remove('hidden');
+      userInfo.classList.add('hidden');
+      uploadSection.classList.add('hidden');
+    }
+    
+    // Fonction pour échapper les caractères HTML
+    function escapeHtml(s) { 
+      return (s+'').replace(/[&<>"']/g, m => 
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+      ); 
+    }
+    
+    // Upload de fichier
+    async function uploadFile() {
+      const file = fileInput.files[0];
+      const title = titleInput.value || "Sans titre";
+      
+      if (!file) {
+        alert('Veuillez choisir un fichier.');
+        return;
+      }
+      
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Upload en cours...';
+      
+      try {
+        // Générer un nom de fichier unique avec timestamp
+        const timestamp = Date.now();
+        const fileExtension = file.name.split('.').pop();
+        const fileName = `${timestamp}_${title.replace(/\s+/g, '_')}.${fileExtension}`;
+        
+        // Upload du fichier
+        const { data: uploadData, error: uploadError } = await supabase
+          .storage
+          .from(BUCKET)
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+        
+        if (uploadError) throw uploadError;
+        
+        alert('Upload réussi !');
+        fileInput.value = '';
+        titleInput.value = '';
+        fileName.textContent = 'Aucun fichier sélectionné';
+        
+        // Recharger la liste des scans
+        loadScans();
+        
+      } catch (error) {
+        console.error('Erreur lors de l\'upload:', error);
+        alert('Erreur: ' + (error.message || JSON.stringify(error)));
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Uploader';
+      }
+    }
+    
+    // Charger la liste des scans
+    async function loadScans() {
+      scansList.innerHTML = '<div class="loading"><p>Chargement des scans...</p></div>';
+      
+      try {
+        const { data, error } = await supabase
+          .storage
+          .from(BUCKET)
+          .list('', {
+            sortBy: { column: 'created_at', order: 'desc' }
+          });
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+          scansList.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Aucun scan pour le moment</p></div>';
+          return;
+        }
+        
+        scansList.innerHTML = '';
+        
+        data.forEach(file => {
+          const url = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${file.name}`;
+          const isPDF = file.name.toLowerCase().endsWith('.pdf');
+          const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "").replace(/^\d+_/, "");
+          const uploadDate = new Date(file.created_at).toLocaleDateString('fr-FR');
+          
+          const scanItem = document.createElement('div');
+          scanItem.className = 'scan-item';
+          
+          scanItem.innerHTML = `
+            <div class="scan-thumbnail">
+              ${isPDF ? 
+                '<i class="fas fa-file-pdf pdf-icon"></i>' : 
+                `<img src="${url}" alt="${escapeHtml(fileNameWithoutExt)}" style="width:100%;height:100%;object-fit:cover;">`
+              }
+            </div>
+            <div class="scan-info">
+              <div class="scan-title">${escapeHtml(fileNameWithoutExt)}</div>
+              <div class="scan-date">Uploadé le ${uploadDate}</div>
+            </div>
+            <div class="scan-actions">
+              <a href="${url}" target="_blank">
+                <button class="${isPDF ? 'btn-danger' : ''}">
+                  <i class="fas fa-${isPDF ? 'file-pdf' : 'eye'}"></i> ${isPDF ? 'PDF' : 'Voir'}
+                </button>
+              </a>
+            </div>
+          `;
+          
+          scansList.appendChild(scanItem);
+        });
+        
+      } catch (error) {
+        console.error('Erreur lors du chargement des scans:', error);
+        scansList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erreur lors du chargement des scans</p></div>';
+      }
+    }
+    
+    // Écouter les changements d'authentification
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        currentUser = session.user;
+        updateUIForAuthenticatedUser();
+        loadScans();
+      } else if (event === 'SIGNED_OUT') {
+        currentUser = null;
+        updateUIForUnauthenticatedUser();
+        scansList.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Aucun scan disponible</p></div>';
+      }
+    });
+  </script>
+</body>
+</html>
