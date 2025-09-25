@@ -38,6 +38,7 @@
       border-radius: 10px;
       margin-bottom: 2rem;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
     }
     
     h1 {
@@ -50,24 +51,12 @@
       opacity: 0.9;
     }
     
-    .container {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 2rem;
-    }
-    
-    @media (max-width: 768px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-    }
-    
-    .auth-section, .upload-section, .scans-section {
+    .admin-panel {
       background: white;
       padding: 1.5rem;
       border-radius: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
     
     h2 {
@@ -77,7 +66,25 @@
       border-bottom: 2px solid var(--light);
     }
     
-    input, button, select {
+    .upload-form {
+      background: var(--light);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: var(--dark);
+    }
+    
+    input, button {
       width: 100%;
       padding: 12px;
       margin-bottom: 1rem;
@@ -112,14 +119,6 @@
       background-color: #c0392b;
     }
     
-    .btn-success {
-      background-color: var(--success);
-    }
-    
-    .btn-success:hover {
-      background-color: #27ae60;
-    }
-    
     .file-input-wrapper {
       position: relative;
       overflow: hidden;
@@ -138,13 +137,18 @@
     }
     
     .file-input-button {
-      background-color: var(--light);
+      background-color: white;
       color: var(--dark);
-      border: 1px dashed var(--gray);
+      border: 2px dashed var(--gray);
       text-align: center;
-      padding: 12px;
+      padding: 15px;
       border-radius: 5px;
       cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    
+    .file-input-button:hover {
+      border-color: var(--secondary);
     }
     
     .file-name {
@@ -153,48 +157,63 @@
       color: var(--gray);
     }
     
-    .scan-item {
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      border: 1px solid #eee;
-      border-radius: 5px;
-      margin-bottom: 1rem;
-      transition: transform 0.2s, box-shadow 0.2s;
+    .scans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
     }
     
-    .scan-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    .scan-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .scan-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
     
     .scan-thumbnail {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 5px;
-      margin-right: 1rem;
-      background-color: #f0f0f0;
+      height: 200px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
-      color: var(--gray);
+      background-color: #f0f0f0;
+      overflow: hidden;
+    }
+    
+    .scan-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .pdf-placeholder {
+      font-size: 4rem;
+      color: var(--accent);
     }
     
     .scan-info {
-      flex: 1;
+      padding: 1rem;
     }
     
     .scan-title {
       font-weight: bold;
       margin-bottom: 0.5rem;
       color: var(--primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .scan-date {
       font-size: 0.8rem;
       color: var(--gray);
+      margin-bottom: 1rem;
     }
     
     .scan-actions {
@@ -203,14 +222,17 @@
     }
     
     .scan-actions button {
-      width: auto;
-      padding: 8px 12px;
+      flex: 1;
+      padding: 8px;
       font-size: 0.9rem;
     }
     
-    .pdf-icon {
-      font-size: 2.5rem;
-      color: #e74c3c;
+    .auth-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
     }
     
     .auth-status {
@@ -239,18 +261,28 @@
       text-align: center;
       padding: 2rem;
       color: var(--gray);
+      grid-column: 1 / -1;
     }
     
     .empty-state {
       text-align: center;
       padding: 2rem;
       color: var(--gray);
+      grid-column: 1 / -1;
     }
     
     .empty-state i {
       font-size: 3rem;
       margin-bottom: 1rem;
       display: block;
+    }
+    
+    .search-bar {
+      margin-bottom: 1.5rem;
+    }
+    
+    .search-bar input {
+      margin-bottom: 0;
     }
     
     footer {
@@ -260,6 +292,63 @@
       color: var(--gray);
       font-size: 0.9rem;
     }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    
+    .notification.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background-color: var(--success);
+    }
+    
+    .notification.error {
+      background-color: var(--accent);
+    }
+    
+    .simple-auth {
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .simple-auth input {
+      max-width: 300px;
+      margin: 0 auto 1rem;
+    }
+    
+    @media (max-width: 768px) {
+      .scans-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+      
+      header h1 {
+        font-size: 2rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .scans-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      body {
+        padding: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -267,53 +356,61 @@
     <h1>Rajin Scan</h1>
     <p class="tagline">Votre bibliothèque de scans privés</p>
   </header>
+
+  <!-- Version simplifiée de l'authentification -->
+  <section class="simple-auth" id="simpleAuth">
+    <h2>Accès Administrateur</h2>
+    <p>Entrez votre clé personnelle pour accéder aux fonctionnalités d'upload</p>
+    
+    <input type="password" id="simpleKey" placeholder="Votre clé d'accès">
+    <button id="simpleLogin">Accéder</button>
+    
+    <div style="margin-top: 2rem; font-size: 0.9rem; color: #666;">
+      <p><strong>Première utilisation ?</strong> Utilisez cette clé : <code>monScan123</code></p>
+      <p>Vous pourrez la changer plus tard dans le code.</p>
+    </div>
+  </section>
   
-  <div class="container">
-    <div class="left-column">
-      <section class="auth-section">
-        <h2>Authentification</h2>
-        <div id="authStatus" class="auth-status not-authenticated">
-          Non connecté
-        </div>
-        <div id="authForm">
-          <input type="email" id="email" placeholder="Votre email">
-          <input type="password" id="password" placeholder="Votre mot de passe">
-          <button id="signInBtn">Se connecter</button>
-          <button id="signUpBtn" class="btn-success">Créer un compte</button>
-        </div>
-        <div id="userInfo" class="hidden">
-          <p>Connecté en tant que: <span id="userEmail"></span></p>
-          <button id="signOutBtn" class="btn-danger">Se déconnecter</button>
-        </div>
-      </section>
+  <section id="adminPanel" class="admin-panel hidden">
+    <h2>Panneau d'Administration</h2>
+    <p>Bienvenue, vous avez accès aux fonctionnalités d'upload.</p>
+    
+    <div class="upload-form">
+      <h3>Uploader un nouveau scan</h3>
+      <div class="form-group">
+        <label for="title">Titre du scan</label>
+        <input type="text" id="title" placeholder="Donnez un titre à votre scan">
+      </div>
       
-      <section id="uploadSection" class="upload-section hidden">
-        <h2>Uploader un scan</h2>
-        <input type="text" id="title" placeholder="Titre du scan">
-        
+      <div class="form-group">
+        <label for="file">Fichier à uploader</label>
         <div class="file-input-wrapper">
           <div class="file-input-button">
-            <i class="fas fa-cloud-upload-alt"></i> Choisir un fichier
+            <i class="fas fa-cloud-upload-alt"></i> Choisir un fichier (Image ou PDF)
           </div>
           <input type="file" id="file" accept="image/*,application/pdf">
         </div>
         <div id="fileName" class="file-name">Aucun fichier sélectionné</div>
-        
-        <button id="uploadBtn">Uploader</button>
-      </section>
+      </div>
+      
+      <button id="uploadBtn">Uploader le scan</button>
     </div>
     
-    <div class="right-column">
-      <section class="scans-section">
-        <h2>Mes scans</h2>
-        <div id="scansList">
-          <div class="loading">
-            <p>Chargement des scans...</p>
-          </div>
-        </div>
-      </section>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Rechercher un scan...">
     </div>
-  </div>
+    
+    <button id="logoutBtn" class="btn-danger">Fermer la session</button>
+  </section>
+  
+  <section class="scans-section">
+    <h2>Mes Scans</h2>
+    <div id="scansList" class="scans-grid">
+      <div class="loading">
+        <p>Chargement des scans...</p>
+      </div>
+    </div>
+  </section>
   
   <footer>
     <p>Rajin Scan &copy; 2023 - Votre bibliothèque privée</p>
@@ -326,43 +423,41 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   
   <script>
-    // Configuration Supabase - REMPLACEZ avec vos valeurs
+    // Configuration Supabase
     const SUPABASE_URL = "https://qbfqbapicbhutqmingvk.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZnFiYXBpY2JodXRxbWluZ3ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NTAyOTYsImV4cCI6MjA3NDMyNjI5Nn0.Je3a2LR76gETeHeIhcUMyk05MpE3PYhaI6YeZG1YDyQ";
     const BUCKET = "scans";
+    
+    // Clé d'accès simple - vous pouvez la changer
+    const ADMIN_SECRET_KEY = "monScan123";
     
     // Initialisation de Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     // Éléments DOM
-    const authStatus = document.getElementById('authStatus');
-    const authForm = document.getElementById('authForm');
-    const userInfo = document.getElementById('userInfo');
-    const userEmail = document.getElementById('userEmail');
-    const uploadSection = document.getElementById('uploadSection');
+    const simpleAuth = document.getElementById('simpleAuth');
+    const adminPanel = document.getElementById('adminPanel');
     const scansList = document.getElementById('scansList');
     
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const signInBtn = document.getElementById('signInBtn');
-    const signUpBtn = document.getElementById('signUpBtn');
-    const signOutBtn = document.getElementById('signOutBtn');
+    const simpleKeyInput = document.getElementById('simpleKey');
+    const simpleLoginBtn = document.getElementById('simpleLogin');
+    const logoutBtn = document.getElementById('logoutBtn');
     
     const titleInput = document.getElementById('title');
     const fileInput = document.getElementById('file');
     const fileName = document.getElementById('fileName');
     const uploadBtn = document.getElementById('uploadBtn');
+    const searchInput = document.getElementById('searchInput');
     
     // État d'authentification
-    let currentUser = null;
+    let isAdmin = false;
     
     // Vérifier l'état d'authentification au chargement
     checkAuthState();
     
     // Écouteurs d'événements
-    signInBtn.addEventListener('click', signIn);
-    signUpBtn.addEventListener('click', signUp);
-    signOutBtn.addEventListener('click', signOut);
+    simpleLoginBtn.addEventListener('click', login);
+    logoutBtn.addEventListener('click', logout);
     
     fileInput.addEventListener('change', function() {
       if (this.files.length > 0) {
@@ -373,105 +468,67 @@
     });
     
     uploadBtn.addEventListener('click', uploadFile);
+    searchInput.addEventListener('input', filterScans);
     
-    // Fonctions d'authentification
-    async function checkAuthState() {
-      const { data: { session }, error } = await supabase.auth.getSession();
+    // Fonction pour afficher les notifications
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
       
-      if (session && session.user) {
-        currentUser = session.user;
-        updateUIForAuthenticatedUser();
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 100);
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+    
+    // Fonctions d'authentification simplifiées
+    function checkAuthState() {
+      const savedAuth = localStorage.getItem('rajinScanSimpleAuth');
+      if (savedAuth === ADMIN_SECRET_KEY) {
+        isAdmin = true;
+        updateUIForAdmin();
+      }
+    }
+    
+    function login() {
+      const enteredKey = simpleKeyInput.value;
+      
+      if (enteredKey === ADMIN_SECRET_KEY) {
+        isAdmin = true;
+        localStorage.setItem('rajinScanSimpleAuth', enteredKey);
+        updateUIForAdmin();
+        showNotification('Accès administrateur autorisé', 'success');
       } else {
-        currentUser = null;
-        updateUIForUnauthenticatedUser();
+        showNotification('Clé d\'accès incorrecte', 'error');
+        simpleKeyInput.value = '';
       }
     }
     
-    async function signIn() {
-      const email = emailInput.value;
-      const password = passwordInput.value;
-      
-      if (!email || !password) {
-        alert('Veuillez remplir tous les champs');
-        return;
-      }
-      
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        
-        if (error) throw error;
-        
-        currentUser = data.user;
-        updateUIForAuthenticatedUser();
-        loadScans();
-        
-      } catch (error) {
-        console.error('Erreur de connexion:', error);
-        alert('Erreur de connexion: ' + error.message);
-      }
+    function logout() {
+      isAdmin = false;
+      localStorage.removeItem('rajinScanSimpleAuth');
+      updateUIForVisitor();
+      showNotification('Session fermée', 'success');
     }
     
-    async function signUp() {
-      const email = emailInput.value;
-      const password = passwordInput.value;
-      
-      if (!email || !password) {
-        alert('Veuillez remplir tous les champs');
-        return;
-      }
-      
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password
-        });
-        
-        if (error) throw error;
-        
-        alert('Compte créé! Vérifiez votre email pour confirmer votre inscription.');
-        
-      } catch (error) {
-        console.error('Erreur lors de la création du compte:', error);
-        alert('Erreur lors de la création du compte: ' + error.message);
-      }
+    function updateUIForAdmin() {
+      simpleAuth.classList.add('hidden');
+      adminPanel.classList.remove('hidden');
+      simpleKeyInput.value = '';
+      loadScans();
     }
     
-    async function signOut() {
-      try {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        
-        currentUser = null;
-        updateUIForUnauthenticatedUser();
-        scansList.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Aucun scan disponible</p></div>';
-        
-      } catch (error) {
-        console.error('Erreur de déconnexion:', error);
-        alert('Erreur de déconnexion: ' + error.message);
-      }
-    }
-    
-    function updateUIForAuthenticatedUser() {
-      authStatus.textContent = 'Connecté';
-      authStatus.className = 'auth-status authenticated';
-      authForm.classList.add('hidden');
-      userInfo.classList.remove('hidden');
-      uploadSection.classList.remove('hidden');
-      userEmail.textContent = currentUser.email;
-      
-      emailInput.value = '';
-      passwordInput.value = '';
-    }
-    
-    function updateUIForUnauthenticatedUser() {
-      authStatus.textContent = 'Non connecté';
-      authStatus.className = 'auth-status not-authenticated';
-      authForm.classList.remove('hidden');
-      userInfo.classList.add('hidden');
-      uploadSection.classList.add('hidden');
+    function updateUIForVisitor() {
+      simpleAuth.classList.remove('hidden');
+      adminPanel.classList.add('hidden');
     }
     
     // Fonction pour échapper les caractères HTML
@@ -487,7 +544,13 @@
       const title = titleInput.value || "Sans titre";
       
       if (!file) {
-        alert('Veuillez choisir un fichier.');
+        showNotification('Veuillez choisir un fichier.', 'error');
+        return;
+      }
+      
+      // Vérifier la taille du fichier (limite à 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        showNotification('Le fichier est trop volumineux (max 10MB)', 'error');
         return;
       }
       
@@ -498,7 +561,8 @@
         // Générer un nom de fichier unique avec timestamp
         const timestamp = Date.now();
         const fileExtension = file.name.split('.').pop();
-        const fileName = `${timestamp}_${title.replace(/\s+/g, '_')}.${fileExtension}`;
+        const safeTitle = title.replace(/[^a-zA-Z0-9]/g, '_');
+        const fileName = `${timestamp}_${safeTitle}.${fileExtension}`;
         
         // Upload du fichier
         const { data: uploadData, error: uploadError } = await supabase
@@ -511,7 +575,7 @@
         
         if (uploadError) throw uploadError;
         
-        alert('Upload réussi !');
+        showNotification('Scan uploadé avec succès!', 'success');
         fileInput.value = '';
         titleInput.value = '';
         fileName.textContent = 'Aucun fichier sélectionné';
@@ -521,10 +585,10 @@
         
       } catch (error) {
         console.error('Erreur lors de l\'upload:', error);
-        alert('Erreur: ' + (error.message || JSON.stringify(error)));
+        showNotification('Erreur lors de l\'upload: ' + (error.message || 'Erreur inconnue'), 'error');
       } finally {
         uploadBtn.disabled = false;
-        uploadBtn.textContent = 'Uploader';
+        uploadBtn.textContent = 'Uploader le scan';
       }
     }
     
@@ -547,39 +611,7 @@
           return;
         }
         
-        scansList.innerHTML = '';
-        
-        data.forEach(file => {
-          const url = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${file.name}`;
-          const isPDF = file.name.toLowerCase().endsWith('.pdf');
-          const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "").replace(/^\d+_/, "");
-          const uploadDate = new Date(file.created_at).toLocaleDateString('fr-FR');
-          
-          const scanItem = document.createElement('div');
-          scanItem.className = 'scan-item';
-          
-          scanItem.innerHTML = `
-            <div class="scan-thumbnail">
-              ${isPDF ? 
-                '<i class="fas fa-file-pdf pdf-icon"></i>' : 
-                `<img src="${url}" alt="${escapeHtml(fileNameWithoutExt)}" style="width:100%;height:100%;object-fit:cover;">`
-              }
-            </div>
-            <div class="scan-info">
-              <div class="scan-title">${escapeHtml(fileNameWithoutExt)}</div>
-              <div class="scan-date">Uploadé le ${uploadDate}</div>
-            </div>
-            <div class="scan-actions">
-              <a href="${url}" target="_blank">
-                <button class="${isPDF ? 'btn-danger' : ''}">
-                  <i class="fas fa-${isPDF ? 'file-pdf' : 'eye'}"></i> ${isPDF ? 'PDF' : 'Voir'}
-                </button>
-              </a>
-            </div>
-          `;
-          
-          scansList.appendChild(scanItem);
-        });
+        displayScans(data);
         
       } catch (error) {
         console.error('Erreur lors du chargement des scans:', error);
@@ -587,16 +619,70 @@
       }
     }
     
-    // Écouter les changements d'authentification
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        currentUser = session.user;
-        updateUIForAuthenticatedUser();
-        loadScans();
-      } else if (event === 'SIGNED_OUT') {
-        currentUser = null;
-        updateUIForUnauthenticatedUser();
-        scansList.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Aucun scan disponible</p></div>';
+    // Afficher les scans
+    function displayScans(scansData) {
+      scansList.innerHTML = '';
+      
+      scansData.forEach(file => {
+        const url = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${file.name}`;
+        const isPDF = file.name.toLowerCase().endsWith('.pdf');
+        const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "").replace(/^\d+_/, "");
+        const uploadDate = new Date(file.created_at).toLocaleDateString('fr-FR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        
+        const scanCard = document.createElement('div');
+        scanCard.className = 'scan-card';
+        scanCard.setAttribute('data-title', fileNameWithoutExt.toLowerCase());
+        
+        scanCard.innerHTML = `
+          <div class="scan-thumbnail">
+            ${isPDF ? 
+              '<div class="pdf-placeholder"><i class="fas fa-file-pdf"></i></div>' : 
+              `<img src="${url}" alt="${escapeHtml(fileNameWithoutExt)}" loading="lazy">`
+            }
+          </div>
+          <div class="scan-info">
+            <div class="scan-title" title="${escapeHtml(fileNameWithoutExt)}">${escapeHtml(fileNameWithoutExt)}</div>
+            <div class="scan-date">Ajouté le ${uploadDate}</div>
+            <div class="scan-actions">
+              <a href="${url}" target="_blank">
+                <button class="${isPDF ? 'btn-danger' : ''}">
+                  <i class="fas fa-${isPDF ? 'file-pdf' : 'eye'}"></i> ${isPDF ? 'Ouvrir PDF' : 'Voir'}
+                </button>
+              </a>
+            </div>
+          </div>
+        `;
+        
+        scansList.appendChild(scanCard);
+      });
+    }
+    
+    // Filtrer les scans
+    function filterScans() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const scanCards = document.querySelectorAll('.scan-card');
+      
+      scanCards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        if (title.includes(searchTerm)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+    
+    // Charger les scans au démarrage
+    loadScans();
+    
+    // Permettre la connexion avec la touche Entrée
+    simpleKeyInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        login();
       }
     });
   </script>
