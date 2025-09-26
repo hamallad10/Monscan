@@ -1,64 +1,38 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Scan Pro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="site-header">
-    <h1>Mon Scan Pro</h1>
-    <nav>
-      <a href="#scan" id="nav-scan">Scan</a>
-      <a href="#history" id="nav-history">Historique</a>
-      <a href="#" id="nav-account">Compte</a>
-    </nav>
-  </header>
+  <nav>
+    <h1>📚 Mon Scan Pro</h1>
+    <button id="logoutBtn" style="display:none;">Se déconnecter</button>
+  </nav>
 
-  <main class="container">
-    <!-- LOGIN -->
-    <section id="loginSection" class="card">
-      <h2>Connexion</h2>
-      <input id="email" type="email" placeholder="Ton email" />
-      <input id="password" type="password" placeholder="Mot de passe" />
-      <div class="row">
-        <button id="loginBtn">Se connecter</button>
-        <button id="signupBtn">Créer un compte</button>
-      </div>
-      <p class="muted">Seul le compte connecté peut uploader des scans.</p>
-    </section>
+  <section id="loginSection">
+    <h2>Connexion</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button id="loginBtn">Se connecter</button>
+    <p id="loginError"></p>
+  </section>
 
-    <!-- SCAN / UPLOAD -->
-    <section id="scanSection" class="card hidden">
-      <h2>Uploader / Scanner</h2>
-      <input id="title" placeholder="Titre du scan (optionnel)" />
-      <div id="dropArea" class="drop-area">Glisser-déposer un fichier ici, ou <button id="browseBtn">Choisir un fichier</button></div>
-      <input id="file" type="file" accept="image/*,application/pdf" class="hidden" />
-      <div id="preview" class="preview"></div>
-      <div class="row">
-        <button id="uploadBtn">Uploader (seul toi)</button>
-        <button id="clearBtn">Effacer</button>
-      </div>
-    </section>
+  <section id="uploadSection" style="display:none;">
+    <h2>Uploader un scan</h2>
+    <input type="file" id="fileInput" accept="image/*,application/pdf">
+    <button id="uploadBtn">Uploader</button>
+    <p id="uploadMsg"></p>
+  </section>
 
-    <!-- HISTORY -->
-    <section id="historySection" class="card">
-      <h2>Historique des scans</h2>
-      <input id="searchInput" placeholder="Recherche par nom..." />
-      <div id="list" class="list">Chargement...</div>
-    </section>
-  </main>
+  <section>
+    <h2>Historique des scans</h2>
+    <ul id="scanList">Chargement...</ul>
+  </section>
 
-  <div id="toast" class="toast" aria-live="polite"></div>
-
-  <!-- sons (optionnel) -->
-  <audio id="okSound" src="assets/success.mp3"></audio>
-  <audio id="errSound" src="assets/error.mp3"></audio>
-
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="script.js"></script>
+  <!-- Firebase SDK -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
-

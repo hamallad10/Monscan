@@ -1,24 +1,32 @@
-:root{--primary:#2563eb;--bg:#f4f6fb;--card:#ffffff;--muted:#6b7280}
-*{box-sizing:border-box}
-body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);margin:0;color:#111}
-.site-header{background:var(--primary);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
-.site-header h1{margin:0;font-size:18px}
-.site-header nav a{color:#fff;margin-left:12px;text-decoration:none;font-weight:600}
-.container{max-width:960px;margin:18px auto;padding:0 12px}
-.card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(15,23,42,0.06);margin-bottom:16px}
-.hidden{display:none}
-input[type="text"], input[type="email"], input[type="password"], input[type="file"], #searchInput, #title{
-  width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px;margin:8px 0;font-size:15px
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f5f5f5;
 }
-.row{display:flex;gap:10px;margin-top:8px}
-button{background:var(--primary);color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
-button[disabled]{opacity:0.6;cursor:not-allowed}
-.drop-area{border:2px dashed rgba(37,99,235,0.35);padding:18px;border-radius:10px;text-align:center;color:var(--primary);cursor:pointer}
-.drop-area.dragover{background:rgba(37,99,235,0.06)}
-.preview img{max-width:160px;border-radius:6px;border:1px solid #eaeef7;margin-top:8px}
-.list .scan{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;border:1px solid #eef2ff;margin-bottom:8px;background:#fff}
-.scan .meta{flex:1}
-.scan a{color:var(--primary);text-decoration:none;font-weight:600}
-.toast{position:fixed;right:18px;top:18px;background:#111;color:#fff;padding:12px 16px;border-radius:8px;opacity:0;transform:translateY(-6px);transition:opacity .25s,transform .25s;z-index:999}
-.toast.show{opacity:1;transform:translateY(0)}
-@media (max-width:600px){ .row{flex-direction:column} .site-header h1{font-size:16px} .container{padding:0 10px} }
+nav {
+  background: #007bff;
+  padding: 10px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+section {
+  background: white;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background: #0056b3;
+}
