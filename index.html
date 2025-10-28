@@ -2,9 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Gagne des points en regardant une pub 🎥</title>
+  <title>Regarde la pub et gagne des points</title>
 
-  <!-- ✅ Vérification HilltopAds -->
+  <!-- Balise de vérification -->
   <meta name="faea9a3418559f576c0404b1c6672b14b5c3aa94" content="faea9a3418559f576c0404b1c6672b14b5c3aa94" />
 
   <!-- Styles et scripts -->
@@ -16,16 +16,17 @@
 
   <style>
     body { font-family: Arial; text-align: center; background: #f8f9fa; }
-    #points { font-size: 20px; margin: 20px; color: #333; }
-    button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 8px; }
+    #points { font-size: 22px; margin: 20px; }
+    #playVideo { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
 
   <h2>🎬 Regarde la pub et gagne des points</h2>
   <div id="points">Points : <span id="userPoints">0</span></div>
+  <button id="playVideo">Regarder une pub</button>
 
-  <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" width="640" height="360" controls preload="auto">
+  <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" width="640" height="360" controls preload="auto" style="display:none;">
     <source src="https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4" type="video/mp4">
   </video>
 
@@ -39,17 +40,32 @@
       debug: true
     });
 
+    // Fonction pour lancer la pub
+    function watchAd() {
+      document.getElementById('playVideo').style.display = 'none';
+      document.getElementById('my-video').style.display = 'block';
+      player.ima.initializeAdDisplayContainer();
+      player.play();
+    }
+
+    // Quand la pub commence
     player.on('adstart', () => console.log('▶️ Pub démarrée'));
+
+    // Quand la pub se termine
     player.on('adended', () => {
       points += 5;
       document.getElementById('userPoints').textContent = points;
       alert("🎉 Tu as gagné 5 points !");
-    });
-
-    player.ready(() => {
-      player.ima.initializeAdDisplayContainer();
+      // Maintenant lance la vidéo principale
       player.play();
     });
+
+    // Bloque la vidéo principale avant la pub
+    player.on('contentready', () => {
+      player.pause();
+    });
+
+    document.getElementById('playVideo').addEventListener('click', watchAd);
   </script>
 
 </body>
