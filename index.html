@@ -2,37 +2,43 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mon Scan Pro</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Regarde des pubs et gagne des points</title>
+  <link href="https://vjs.zencdn.net/7.21.1/video-js.css" rel="stylesheet" />
+  <script src="https://vjs.zencdn.net/7.21.1/video.min.js"></script>
+  <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-ads@6.9.0/dist/videojs-contrib-ads.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ima@1.8.0/dist/videojs.ima.min.js"></script>
+  <style>
+    body { font-family: Arial; text-align: center; background: #f5f5f5; }
+    #points { font-size: 22px; margin: 20px; }
+    button { padding: 10px 20px; font-size: 18px; border: none; border-radius: 10px; background: #0099ff; color: white; }
+  </style>
 </head>
 <body>
-  <nav>
-    <h1>📚 Mon Scan Pro</h1>
-    <button id="logoutBtn" style="display:none;">Se déconnecter</button>
-  </nav>
 
-  <section id="loginSection">
-    <h2>Connexion</h2>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Mot de passe">
-    <button id="loginBtn">Se connecter</button>
-    <p id="loginError"></p>
-  </section>
+  <h1>🎬 Gagne des points en regardant une pub</h1>
+  <div id="points">Points : <span id="userPoints">0</span></div>
 
-  <section id="uploadSection" style="display:none;">
-    <h2>Uploader un scan</h2>
-    <input type="file" id="fileInput" accept="image/*,application/pdf">
-    <button id="uploadBtn">Uploader</button>
-    <p id="uploadMsg"></p>
-  </section>
+  <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
+    <source src="https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4" type="video/mp4" />
+  </video>
 
-  <section>
-    <h2>Historique des scans</h2>
-    <ul id="scanList">Chargement...</ul>
-  </section>
+  <script>
+    let points = 0;
+    const userPoints = document.getElementById("userPoints");
+    const player = videojs('my-video');
 
-  <!-- Firebase SDK -->
-  <script type="module" src="script.js"></script>
+    player.ima({
+      adTagUrl: 'https://stunning-finance.com/d/mPF.zCdkGVNpvXZAGuU_/Lewm/9OuZZbU/lekBPxTGYn2MOGDPcYwEO_TUIDtkNYjVY/4iNzzxAf5PMpwT'
+    });
+
+    // Quand la pub est terminée, on ajoute les points
+    player.on('adended', function() {
+      points += 5; // 5 points par pub
+      userPoints.textContent = points;
+      alert("🎉 Tu as gagné 5 points !");
+    });
+  </script>
+
 </body>
 </html>
