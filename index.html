@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Regarde des pubs et gagne des points</title>
+  <title>Regarde une pub et gagne des points</title>
   <link href="https://vjs.zencdn.net/7.21.1/video-js.css" rel="stylesheet" />
   <script src="https://vjs.zencdn.net/7.21.1/video.min.js"></script>
   <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
@@ -11,34 +11,40 @@
   <style>
     body { font-family: Arial; text-align: center; background: #f5f5f5; }
     #points { font-size: 22px; margin: 20px; }
-    button { padding: 10px 20px; font-size: 18px; border: none; border-radius: 10px; background: #0099ff; color: white; }
   </style>
 </head>
 <body>
 
-  <h1>🎬 Gagne des points en regardant une pub</h1>
+  <h1>🎬 Regarde la pub et gagne des points</h1>
   <div id="points">Points : <span id="userPoints">0</span></div>
 
-  <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
-    <source src="https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4" type="video/mp4" />
+  <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" width="640" height="360" controls preload="auto">
+    <source src="https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4" type="video/mp4">
   </video>
 
   <script>
-    let points = 0;
-    const userPoints = document.getElementById("userPoints");
     const player = videojs('my-video');
+    const adTag = 'https://stunning-finance.com/d/mPF.zCdkGVNpvXZAGuU_/Lewm/9OuZZbU/lekBPxTGYn2MOGDPcYwEO_TUIDtkNYjVY/4iNzzxAf5PMpwT';
+    let points = 0;
 
     player.ima({
-      adTagUrl: 'https://stunning-finance.com/d/mPF.zCdkGVNpvXZAGuU_/Lewm/9OuZZbU/lekBPxTGYn2MOGDPcYwEO_TUIDtkNYjVY/4iNzzxAf5PMpwT'
+      adTagUrl: adTag,
+      debug: true
     });
 
-    // Quand la pub est terminée, on ajoute les points
-    player.on('adended', function() {
-      points += 5; // 5 points par pub
-      userPoints.textContent = points;
+    player.on('adsready', () => console.log('✅ Pub prête à être lue.'));
+    player.on('adstart', () => console.log('▶️ Début pub'));
+    player.on('adended', () => {
+      points += 5;
+      document.getElementById('userPoints').textContent = points;
       alert("🎉 Tu as gagné 5 points !");
     });
-  </script>
 
+    // Lecture automatique de la pub avant la vidéo principale
+    player.ready(() => {
+      player.ima.initializeAdDisplayContainer();
+      player.play();
+    });
+  </script>
 </body>
 </html>
