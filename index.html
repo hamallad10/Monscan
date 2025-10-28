@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta name="faea9a3418559f576c0404b1c6672b14b5c3aa94" content="faea9a3418559f576c0404b1c6672b14b5c3aa94" />
   <meta charset="UTF-8">
-  <title>Regarde une pub et gagne des points</title>
+  <title>Gagne des points en regardant une pub 🎥</title>
+
+  <!-- ✅ Vérification HilltopAds -->
+  <meta name="faea9a3418559f576c0404b1c6672b14b5c3aa94" content="faea9a3418559f576c0404b1c6672b14b5c3aa94" />
+
+  <!-- Styles et scripts -->
   <link href="https://vjs.zencdn.net/7.21.1/video-js.css" rel="stylesheet" />
   <script src="https://vjs.zencdn.net/7.21.1/video.min.js"></script>
   <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-ads@6.9.0/dist/videojs-contrib-ads.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/videojs-ima@1.8.0/dist/videojs.ima.min.js"></script>
+
   <style>
-    body { font-family: Arial; text-align: center; background: #f5f5f5; }
-    #points { font-size: 22px; margin: 20px; }
+    body { font-family: Arial; text-align: center; background: #f8f9fa; }
+    #points { font-size: 20px; margin: 20px; color: #333; }
+    button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 8px; }
   </style>
 </head>
 <body>
 
-  <h1>🎬 Regarde la pub et gagne des points</h1>
+  <h2>🎬 Regarde la pub et gagne des points</h2>
   <div id="points">Points : <span id="userPoints">0</span></div>
 
   <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" width="640" height="360" controls preload="auto">
@@ -25,7 +31,7 @@
 
   <script>
     const player = videojs('my-video');
-    const adTag = 'https://stunning-finance.com/d/mPF.zCdkGVNpvXZAGuU_/Lewm/9OuZZbU/lekBPxTGYn2MOGDPcYwEO_TUIDtkNYjVY/4iNzzxAf5PMpwT';
+    const adTag = 'https://stunning-finance.com/dom.FUzydOGFNlv/ZZGuUC/zezm/9XuHZsUml/ktPZTTYJ2IOIDZg/xsM-T/cdtVNKjMYX4zONDuE/xcOGAD';
     let points = 0;
 
     player.ima({
@@ -33,19 +39,18 @@
       debug: true
     });
 
-    player.on('adsready', () => console.log('✅ Pub prête à être lue.'));
-    player.on('adstart', () => console.log('▶️ Début pub'));
+    player.on('adstart', () => console.log('▶️ Pub démarrée'));
     player.on('adended', () => {
       points += 5;
       document.getElementById('userPoints').textContent = points;
       alert("🎉 Tu as gagné 5 points !");
     });
 
-    // Lecture automatique de la pub avant la vidéo principale
     player.ready(() => {
       player.ima.initializeAdDisplayContainer();
       player.play();
     });
   </script>
+
 </body>
 </html>
